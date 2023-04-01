@@ -31,7 +31,7 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt MySqsQueue.Arn
-            BatchSize: 10
+            BatchSize: 1
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
