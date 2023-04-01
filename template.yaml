@@ -32,6 +32,8 @@ Resources:
           Properties:
             Queue: !GetAtt MySqsQueue.Arn
             BatchSize: 1
+            ScalingConfig:
+              MaximumConcurrency: 3
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
