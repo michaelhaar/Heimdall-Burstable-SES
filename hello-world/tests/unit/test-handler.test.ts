@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { lambdaHandler } from '../../app';
 
 describe('Unit test for app handler', function () {
-    it('runs at least 1 second', async () => {
+    it.only('runs at least 1 second', async () => {
         const start = Date.now();
         await lambdaHandler(testEvent);
         const end = Date.now();
