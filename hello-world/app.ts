@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult, SQSEvent } from 'aws-lambda';
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
 
 /**
@@ -11,15 +11,19 @@ import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
  *
  */
 
-const REGION = 'eu-central-1';
-const sesClient = new SESClient({ region: REGION });
+const region = 'eu-central-1';
+const sesClient = new SESClient({ region });
+const fromAddress = 'michael.haar92@gmail.com';
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    return useMinFunctionRuntime(async () => {
-        const sendEmailCommand = createSendEmailCommand('michael.haar92@gmail.com', 'michael.haar92@gmail.com');
+export const lambdaHandler = async (event: SQSEvent): Promise<APIGatewayProxyResult> => {
+    return await useMinFunctionRuntime(async () => {
+        const sendData = getSendData(event);
 
         try {
-            await sesClient.send(sendEmailCommand);
+            for (const data of sendData) {
+                const sendEmailCommand = createSendEmailCommand(data, fromAddress);
+                await sesClient.send(sendEmailCommand);
+            }
             return {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -40,7 +44,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
 
 const useMinFunctionRuntime = async <T>(func: () => Promise<T>, minRuntimeInMs = 1000): Promise<T> => {
     const start = Date.now();
-    const result = func();
+    const result = await func();
     const end = Date.now();
 
     if (end - start < minRuntimeInMs) {
@@ -51,39 +55,45 @@ const useMinFunctionRuntime = async <T>(func: () => Promise<T>, minRuntimeInMs =
     return result;
 };
 
-const createSendEmailCommand = (toAddress: string, fromAddress: string) => {
+export type TEmailSendData = {
+    to: string;
+    subject: string;
+    html: string;
+};
+
+const getSendData = (event: SQSEvent): TEmailSendData[] => {
+    const messages = event.Records.map((record) => JSON.parse(record.body));
+    return messages.filter(validateEmailSendData);
+};
+
+const validateEmailSendData = (data: unknown): data is TEmailSendData => {
+    return (
+        typeof data === 'object' &&
+        data !== null &&
+        typeof (data as TEmailSendData).to === 'string' &&
+        typeof (data as TEmailSendData).subject === 'string' &&
+        typeof (data as TEmailSendData).html === 'string'
+    );
+};
+
+const createSendEmailCommand = ({ to, subject, html }: TEmailSendData, fromAddress: string) => {
     return new SendEmailCommand({
         Destination: {
-            /* required */
-            CcAddresses: [
-                /* more items */
-            ],
-            ToAddresses: [
-                toAddress,
-                /* more To-email addresses */
-            ],
+            ToAddresses: [to],
         },
         Message: {
-            /* required */
             Body: {
-                /* required */
                 Html: {
                     Charset: 'UTF-8',
-                    Data: 'HTML_FORMAT_BODY',
-                },
-                Text: {
-                    Charset: 'UTF-8',
-                    Data: 'TEXT_FORMAT_BODY',
+                    Data: html,
                 },
             },
             Subject: {
                 Charset: 'UTF-8',
-                Data: 'EMAIL_SUBJECT',
+                Data: subject,
             },
         },
         Source: fromAddress,
-        ReplyToAddresses: [
-            /* more items */
-        ],
+        ReplyToAddresses: [],
     });
 };
