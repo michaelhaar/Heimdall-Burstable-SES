@@ -40,7 +40,7 @@ jobs:
           FEATURE_BRANCH_NAME: $(echo ${{github.ref_name}} | tr -cd '[a-zA-Z0-9-]')
         shell: bash
         run: |
-          sam deploy --stack-name FEATURE_BRANCH_NAME \
+          sam deploy --stack-name ${FEATURE_BRANCH_NAME} \
             --capabilities CAPABILITY_IAM \
             --region ${TESTING_REGION} \
             --s3-bucket ${TESTING_ARTIFACTS_BUCKET} \
