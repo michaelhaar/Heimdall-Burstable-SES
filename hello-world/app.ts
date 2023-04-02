@@ -16,7 +16,7 @@ const sesClient = new SESClient({ region });
 const fromAddress = 'michael.haar92@gmail.com';
 
 export const lambdaHandler = async (event: SQSEvent): Promise<APIGatewayProxyResult> => {
-    return useMinFunctionRuntime(async () => {
+    return await useMinFunctionRuntime(async () => {
         const sendData = getSendData(event);
 
         try {
@@ -44,7 +44,7 @@ export const lambdaHandler = async (event: SQSEvent): Promise<APIGatewayProxyRes
 
 const useMinFunctionRuntime = async <T>(func: () => Promise<T>, minRuntimeInMs = 1000): Promise<T> => {
     const start = Date.now();
-    const result = func();
+    const result = await func();
     const end = Date.now();
 
     if (end - start < minRuntimeInMs) {
