@@ -8,7 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 15
+    Timeout: 3
 
 Resources:
   MySqsQueue:
@@ -34,6 +34,8 @@ Resources:
             BatchSize: 1
             ScalingConfig:
               MaximumConcurrency: 3
+      Policies:
+        - AmazonSESFullAccess
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
