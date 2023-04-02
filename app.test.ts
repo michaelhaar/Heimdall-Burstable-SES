@@ -1,5 +1,5 @@
 import { SQSEvent } from 'aws-lambda';
-import { lambdaHandler, TEmailSendData } from '../../app';
+import { lambdaHandler, TEmailSendData } from './app';
 import { SESClient } from '@aws-sdk/client-ses';
 
 describe('Unit test for app handler', function () {

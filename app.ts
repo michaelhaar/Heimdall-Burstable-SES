@@ -1,16 +1,6 @@
 import { APIGatewayProxyResult, SQSEvent } from 'aws-lambda';
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
-
 const region = 'eu-central-1';
 const sesClient = new SESClient({ region });
 const fromAddress = 'michael.haar92@gmail.com';
@@ -27,7 +17,7 @@ export const lambdaHandler = async (event: SQSEvent): Promise<APIGatewayProxyRes
             return {
                 statusCode: 200,
                 body: JSON.stringify({
-                    message: 'hello world',
+                    message: 'OK',
                 }),
             };
         } catch (err) {
@@ -35,7 +25,7 @@ export const lambdaHandler = async (event: SQSEvent): Promise<APIGatewayProxyRes
             return {
                 statusCode: 500,
                 body: JSON.stringify({
-                    message: 'some error happened',
+                    message: 'Internal Server Error',
                 }),
             };
         }
