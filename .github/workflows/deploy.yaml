@@ -36,11 +36,9 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Deploy to feature stack in the testing account
-        env:
-          FEATURE_BRANCH_NAME: $(echo ${{github.ref_name}} | tr -cd '[a-zA-Z0-9-]')
         shell: bash
         run: |
-          sam deploy --stack-name ${FEATURE_BRANCH_NAME} \
+          sam deploy --stack-name $(echo ${{github.head_ref}} | tr -cd '[a-zA-Z0-9-]') \
             --capabilities CAPABILITY_IAM \
             --region ${TESTING_REGION} \
             --s3-bucket ${TESTING_ARTIFACTS_BUCKET} \
