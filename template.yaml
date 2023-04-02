@@ -25,7 +25,7 @@ Resources:
                         Queue: !GetAtt EmailWaitingQueue.Arn
                         BatchSize: 1
                         ScalingConfig:
-                            MaximumConcurrency: 1
+                            MaximumConcurrency: 2
             Policies:
                 - AmazonSESFullAccess
         Metadata: # Manage esbuild properties
@@ -38,9 +38,9 @@ Resources:
                     - app.ts
 
 Outputs:
-    SendEmailFunctionFunction:
+    SendEmailFunction:
         Description: 'SendEmailFunction Lambda ARN'
-        Value: !GetAtt SendEmailFunctionFunction.Arn
-    SendEmailFunctionFunctionIamRole:
+        Value: !GetAtt SendEmailFunction.Arn
+    SendEmailFunctionIamRole:
         Description: 'Implicit IAM Role created for SendEmailFunction'
-        Value: !GetAtt SendEmailFunctionFunctionRole.Arn
+        Value: !GetAtt SendEmailFunctionRole.Arn
