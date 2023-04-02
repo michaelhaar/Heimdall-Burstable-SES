@@ -1,73 +1,51 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { lambdaHandler } from '../../app';
+import { SQSEvent } from 'aws-lambda';
+import { lambdaHandler, TEmailSendData } from '../../app';
+import { SESClient } from '@aws-sdk/client-ses';
 
 describe('Unit test for app handler', function () {
-    it.only('runs at least 1 second', async () => {
+    const sesClientSendMock = jest.spyOn(SESClient.prototype, 'send').mockImplementation(() => ({}));
+
+    beforeEach(() => {
+        sesClientSendMock.mockClear();
+    });
+
+    it('runs at least 1 second', async () => {
         const start = Date.now();
+
         await lambdaHandler(testEvent);
         const end = Date.now();
 
         expect(end - start).toBeGreaterThanOrEqual(1000);
     });
 
-    it('verifies successful response', async () => {
-        const result: APIGatewayProxyResult = await lambdaHandler(testEvent);
+    it('should call send function', async () => {
+        await lambdaHandler(testEvent);
 
-        expect(result.statusCode).toEqual(200);
-        expect(result.body).toEqual(
-            JSON.stringify({
-                message: 'hello world',
-            }),
-        );
+        expect(sesClientSendMock).toHaveBeenCalledTimes(1);
     });
 });
 
-const testEvent: APIGatewayProxyEvent = {
-    httpMethod: 'get',
-    body: '',
-    headers: {},
-    isBase64Encoded: false,
-    multiValueHeaders: {},
-    multiValueQueryStringParameters: {},
-    path: '/hello',
-    pathParameters: {},
-    queryStringParameters: {},
-    requestContext: {
-        accountId: '123456789012',
-        apiId: '1234',
-        authorizer: {},
-        httpMethod: 'get',
-        identity: {
-            accessKey: '',
-            accountId: '',
-            apiKey: '',
-            apiKeyId: '',
-            caller: '',
-            clientCert: {
-                clientCertPem: '',
-                issuerDN: '',
-                serialNumber: '',
-                subjectDN: '',
-                validity: { notAfter: '', notBefore: '' },
+const testEvent: SQSEvent = {
+    Records: [
+        {
+            messageId: '19dd0b57-b21e-4ac1-a2ac-11b019e8e7b3',
+            receiptHandle: 'MessageReceiptHandle',
+            body: JSON.stringify({
+                to: 'testy.mctestison@gmail.com',
+                subject: 'Favorite Fruit',
+                html: '<p>Banana</p>',
+            } as TEmailSendData),
+            attributes: {
+                ApproximateReceiveCount: '1',
+                SentTimestamp: '1523232000000',
+                SenderId: '123456789012',
+                ApproximateFirstReceiveTimestamp: '1523232000001',
             },
-            cognitoAuthenticationProvider: '',
-            cognitoAuthenticationType: '',
-            cognitoIdentityId: '',
-            cognitoIdentityPoolId: '',
-            principalOrgId: '',
-            sourceIp: '',
-            user: '',
-            userAgent: '',
-            userArn: '',
+            messageAttributes: {},
+            md5OfBody: '7b270e59b47ff90a553787216d55d91d',
+            eventSource: 'aws:sqs',
+            eventSourceARN: 'arn:aws:sqs:us-east-2:123456789012:MyQueue',
+            awsRegion: 'eu-central-1',
         },
-        path: '/hello',
-        protocol: 'HTTP/1.1',
-        requestId: 'c6af9ac6-7b61-11e6-9a41-93e8deadbeef',
-        requestTimeEpoch: 1428582896000,
-        resourceId: '123456',
-        resourcePath: '/hello',
-        stage: 'dev',
-    },
-    resource: '',
-    stageVariables: {},
+    ],
 };
