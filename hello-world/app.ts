@@ -12,6 +12,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
+        // wait 1 second to simulate a long running function
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         return {
             statusCode: 200,
             body: JSON.stringify({
