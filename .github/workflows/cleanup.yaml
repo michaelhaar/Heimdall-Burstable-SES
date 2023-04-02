@@ -35,6 +35,6 @@ jobs:
       - name: Delete feature branch stack
         run: |
           sam delete \
-            --stack-name $(echo '${{github.head_ref}}' | tr -cd '[a-zA-Z0-9-]') \
+            --stack-name $(echo "${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
             --region ${TESTING_REGION} \
             --no-prompts
