@@ -112,17 +112,6 @@ To get code to production:
 
 ### Forking
 
-If you want to fork this project, you will need to add the following secrets to your forked repository:
+If you want to fork this project and run the same pipeline, you will need to adjust the OpenID Connect role.
 
-![Github Actions secrets](/docs/images/github-secrets.png)
-
-- `AWS_ACCESS_KEY_ID` of the AWS User
-- `AWS_SECRET_ACCESS_KEY` of the AWS User
-
-- Note I recommend granting the AWS User full admin access for testing and reduce the permissions later on:
-  - `AmazonSQSFullAccess`
-  - `AWSLambdaFullAccess`
-  - `AmazonS3FullAccess`
-  - `AmazonSESFullAccess`
-  - `AWSCloudFormationFullAccess`
-  - `IAMFullAccess`
+see: [Configuring OpenID Connect in Amazon Web Services](docs/setup-oidc.md)

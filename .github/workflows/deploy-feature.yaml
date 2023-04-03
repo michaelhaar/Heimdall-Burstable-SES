@@ -28,7 +28,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{env.OIDC_ROLE }}
+          role-to-assume: ${{ env.OIDC_ROLE }}
           aws-region: ${{ env.TESTING_REGION }}
 
       - name: Deploy to feature stack
