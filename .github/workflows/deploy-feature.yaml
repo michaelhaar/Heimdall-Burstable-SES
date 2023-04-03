@@ -28,7 +28,7 @@ jobs:
       - name: Deploy feature stack
         shell: bash
         run: |
-          sam deploy --stack-name $(echo "${{PROJECT_INITIALS}}-${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
+          sam deploy --stack-name $(echo "${{vars.PROJECT_INITIALS}}-${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
             --capabilities CAPABILITY_IAM \
             --region ${{vars.AWS_REGION}} \
             --no-fail-on-empty-changeset \

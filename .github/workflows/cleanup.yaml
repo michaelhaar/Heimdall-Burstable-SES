@@ -27,6 +27,6 @@ jobs:
       - name: Delete feature branch stack
         run: |
           sam delete \
-            --stack-name $(echo "${{PROJECT_INITIALS}}-${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
-            --region ${TESTING_REGION} \
+            --stack-name $(echo "${{vars.PROJECT_INITIALS}}-${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
+            --region ${{vars.AWS_REGION}} \
             --no-prompts
