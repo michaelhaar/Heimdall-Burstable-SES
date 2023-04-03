@@ -20,6 +20,13 @@ jobs:
           use-installer: true
       - run: sam build --template ${SAM_TEMPLATE} --use-container
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.TESTING_REGION }}
+
       - name: Deploy to feature stack in the testing account
         shell: bash
         run: |
@@ -27,5 +34,4 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region ${TESTING_REGION} \
             --no-fail-on-empty-changeset \
-            --no-confirm-changeset \
-            --resolve-s3
+            --no-confirm-changeset
