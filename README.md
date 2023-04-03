@@ -1,128 +1,99 @@
-# Heimdall-Burstable-SES
+# Heimdall-Burstable-SES 📊📧
 
-This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
+## About the Project
 
-- hello-world - Code for the application's Lambda function written in TypeScript.
-- events - Invocation events that you can use to invoke the function.
-- hello-world/tests - Unit tests for the application code.
-- template.yaml - A template that defines the application's AWS resources.
+### Main Goals
 
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
+- Send emails without exceeding the AWS SES send rate limit. 📧
+- Low cost 💲✂️
+  - Pay as you use
+  - Scales to zero 
 
-If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.  
-The AWS Toolkit is an open source plug-in for popular IDEs that uses the SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds a simplified step-through debugging experience for Lambda function code. See the following links to get started.
+### Build With
 
-- [CLion](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [GoLand](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [IntelliJ](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [WebStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [Rider](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [PhpStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [PyCharm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [RubyMine](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [DataGrip](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-- [VS Code](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html)
-- [Visual Studio](https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/welcome.html)
+- [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
+- [AWS SES](https://aws.amazon.com/ses/), [AWS Lambda](https://aws.amazon.com/lambda/), [AWS SQS](https://aws.amazon.com/sqs/)
+- [Node.js](https://nodejs.org/en/), [TypeScript](https://www.typescriptlang.org/), [esbuild](https://esbuild.github.io/)
+- [prettier](https://prettier.io/), [eslint](https://eslint.org/), [jest](https://jestjs.io/)
 
-## Deploy the sample application
+### Problem description
 
-The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
+AWS SES has a soft send rate limit, which is the maximum number of emails that Amazon SES can accept from your account each second. You can exceed this quota for short bursts, but not for sustained periods of time ([source](https://docs.aws.amazon.com/ses/latest/dg/manage-sending-quotas.html)). If you send more than that, you will get a `Throttling` error. This is a problem if you want to send a lot of emails at once, for example, if you want to send a newsletter to all your users.
 
-To use the SAM CLI, you need the following tools.
+Typical send rates:
+- 1 email per second for AWS SES sandbox accounts ([source](https://docs.aws.amazon.com/ses/latest/dg/manage-sending-quotas.html))
+- ~50 emails per second for AWS SES production accounts ([source](https://stackoverflow.com/questions/61708253/sending-emails-by-ses-as-fast-as-possible-without-exceeding-the-rate-limit))
+- SendGrid has a default limit of 100 emails per second (600 emails/minute) ([source](https://docs.sendgrid.com/v2-api/using_the_web_api#rate-limits)).
 
-- SAM CLI - [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-- Node.js - [Install Node.js 18](https://nodejs.org/en/), including the NPM package management tool.
-- Docker - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
+There are multiple ways to solve this problem, but the most common one is to use a queue. You can send the emails to a queue and then process them one by one. See:
+ - [How to Automatically Prevent Email Throttling when Reaching Concurrency Limit](https://aws.amazon.com/blogs/messaging-and-targeting/prevent-email-throttling-concurrency-limit/)
+ - [Sending emails by SES as fast as possible without exceeding the rate limit](https://stackoverflow.com/a/61916362/6664400)
 
-To build and deploy your application for the first time, run the following in your shell:
+![Leaky bucket](/docs/images/leaky-bucket.png)
 
-```bash
-sam build
-sam deploy --guided
+*Leaky bucket principle. Source: [How to Automatically Prevent Email Throttling when Reaching Concurrency Limit](https://aws.amazon.com/blogs/messaging-and-targeting/prevent-email-throttling-concurrency-limit/)*
+
+These solutions are great in general, but doesn't seem to be optimal for our use case and might be a little bit outdated and therefore overly complex.
+
+### Our Solution
+
+AWS recently (12 JAN 2023) introduced the [maximum concurrency of AWS Lambda functions when using Amazon SQS as an event source](https://aws.amazon.com/blogs/compute/introducing-maximum-concurrency-of-aws-lambda-functions-when-using-amazon-sqs-as-an-event-source/#:~:text=You%20can%20configure%20the%20maximum,the%20maximum%20value%20is%201000.) feature, which seems to be a perfect fit for our use case. This feature allows us to set a maximum concurrency for a Lambda function that is triggered by a SQS queue. This means that we can set a maximum concurrency for our Lambda function, which will process the emails one by one. This will allow us to send a lot of emails without exceeding the SES send rate limit.
+
+![Maximum concurrency is set to 10 for the SQS queue.](/docs/images/maximum-concurrency.png)
+Source: [Introducing maximum concurrency of AWS Lambda functions when using Amazon SQS as an event source](https://aws.amazon.com/blogs/compute/introducing-maximum-concurrency-of-aws-lambda-functions-when-using-amazon-sqs-as-an-event-source/#:~:text=You%20can%20configure%20the%20maximum,the%20maximum%20value%20is%201000.)
+
+By setting the maximum concurrency equal to our SES send rate limit and making sure that each lambda function runs at least 1s, we are able to send emails without exceeding the SES send rate limit! 🙌🎉
+
+### Cost Estimation
+
+![Architecture](/docs/images/architecture.png)
+
+![Cost Estimation for 10k emails per month](/docs/images/cost-estimation-10k.png)
+
+Cost estimation for emails per month
+- 1k: ~0.10$
+- 10k: ~1.03$
+- 100k: ~10.27$
+
+## Getting Started 🚀
+
+This is an example of how you may give instructions on setting up your project locally. To get a local copy up and running follow these simple example steps.
+### Prerequisites
+
+For this project you will need:
+
+- [Node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/) installed.
+
+Optional:
+- [Visual Studio Code](https://code.visualstudio.com/) with [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extensions installed.
+- [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed
+  - [Docker](https://www.docker.com/) installed?
+  - [AWS CLI](https://aws.amazon.com/cli/) installed?
+
+### Usage
+- Clone the repo
+```sh
+git clone
+```
+- Install NPM packages
+```sh
+yarn install
+```
+- Run the unit tests
+```sh
+yarn test
 ```
 
-The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
+#### Deploying to AWS
+The application will be automatically deployed by the cd pipeline for each PR and on every push to the main branch.
 
-- **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
-- **AWS Region**: The AWS region you want to deploy your app to.
-- **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
-- **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
-- **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
+## Contributing 🤝
+To get code to production:
 
-You can find your API Gateway Endpoint URL in the output values displayed after deployment.
+1. Create a new branch from latest `main`.
+2. Make your changes.
+3. Push your branch to GitHub and open a pull request.
+4. The pipeline will automatically run the CI checks (typecheck, prettier, linting & unit tests) and will create a new feature deployment.
+5. Test the feature deployment.
+6. The PR will be reviewed and merged to `main` and the pipeline will automatically create a new production deployment.
 
-## Use the SAM CLI to build and test locally
-
-Build your application with the `sam build` command.
-
-```bash
-Heimdall-Burstable-SES$ sam build
-```
-
-The SAM CLI installs dependencies defined in `hello-world/package.json`, compiles TypeScript with esbuild, creates a deployment package, and saves it in the `.aws-sam/build` folder.
-
-Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
-
-Run functions locally and invoke them with the `sam local invoke` command.
-
-```bash
-Heimdall-Burstable-SES$ sam local invoke HelloWorldFunction --event events/event.json
-```
-
-The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
-
-```bash
-Heimdall-Burstable-SES$ sam local start-api
-Heimdall-Burstable-SES$ curl http://localhost:3000/
-```
-
-The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
-
-```yaml
-Events:
-  HelloWorld:
-    Type: Api
-    Properties:
-      Path: /hello
-      Method: get
-```
-
-## Add a resource to your application
-
-The application template uses AWS Serverless Application Model (AWS SAM) to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources such as functions, triggers, and APIs. For resources not included in [the SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use standard [AWS CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) resource types.
-
-## Fetch, tail, and filter Lambda function logs
-
-To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs` lets you fetch logs generated by your deployed Lambda function from the command line. In addition to printing the logs on the terminal, this command has several nifty features to help you quickly find the bug.
-
-`NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
-
-```bash
-Heimdall-Burstable-SES$ sam logs -n HelloWorldFunction --stack-name Heimdall-Burstable-SES --tail
-```
-
-You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
-
-## Unit tests
-
-Tests are defined in the `hello-world/tests` folder in this project. Use NPM to install the [Jest test framework](https://jestjs.io/) and run unit tests.
-
-```bash
-Heimdall-Burstable-SES$ cd hello-world
-hello-world$ npm install
-hello-world$ npm run test
-```
-
-## Cleanup
-
-To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
-
-```bash
-aws cloudformation delete-stack --stack-name Heimdall-Burstable-SES
-```
-
-## Resources
-
-See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
-
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
