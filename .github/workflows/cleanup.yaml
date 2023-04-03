@@ -9,6 +9,9 @@ on:
 jobs:
   delete-feature:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
       - uses: aws-actions/setup-sam@v2

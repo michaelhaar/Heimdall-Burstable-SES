@@ -12,6 +12,9 @@ env:
 jobs:
   build-and-deploy-prod:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
       - uses: aws-actions/setup-sam@v2
@@ -22,8 +25,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY  }}
+          role-to-assume: ${{env.OIDC_ROLE }}
           aws-region: ${{ env.PROD_REGION }}
 
       - name: Deploy to production account
