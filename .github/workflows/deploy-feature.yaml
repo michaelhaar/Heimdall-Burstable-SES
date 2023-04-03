@@ -8,6 +8,7 @@ on:
 env:
   SAM_TEMPLATE: template.yaml
   TESTING_REGION: eu-central-1
+  ROLE: arn:aws:iam::055198341417:oidc-provider/token.actions.githubusercontent.com
 
 jobs:
   build-and-deploy-feature:
@@ -23,8 +24,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ env.ROLE }}
           aws-region: ${{ env.TESTING_REGION }}
 
       - name: Deploy to feature stack in the testing account
