@@ -35,7 +35,7 @@ There are multiple ways to solve this problem, but the most common one is to use
 
 _Leaky bucket principle. Source: [How to Automatically Prevent Email Throttling when Reaching Concurrency Limit](https://aws.amazon.com/blogs/messaging-and-targeting/prevent-email-throttling-concurrency-limit/)_
 
-These solutions are great in general, but doesn't seem to be optimal for our use case and might be a little bit outdated and therefore overly complex.
+These solutions are great in general, but doesn't seem to be optimal for our use case and might be a little bit outdated and therefore overly complex..
 
 ### Our Solution
 
