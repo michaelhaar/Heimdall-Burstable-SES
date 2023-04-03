@@ -6,8 +6,7 @@ on:
       - 'main'
 
 env:
-  SAM_TEMPLATE: template.yaml
-  PROD_STACK_NAME: production-stack
+  PROD_STACK_NAME: HBS-production-stack
   PROD_REGION: eu-central-1
 
 jobs:
