@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   pull_request:
-    branches: ["**"]
+    branches: ['**']
 
 env:
   PIPELINE_USER_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

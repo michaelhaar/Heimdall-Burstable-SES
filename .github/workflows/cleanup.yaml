@@ -2,7 +2,7 @@ name: Cleanup
 
 on:
   pull_request:
-    branches: ["**"]
+    branches: ['**']
     types:
       - closed
 

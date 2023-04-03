@@ -1,39 +1,39 @@
 name: CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: ['**']
+  push:
+    branches: [main]
+  pull_request:
+    branches: ['**']
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v3
-            - name: Use Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: '18'
-            - name: Cache node modules
-              uses: actions/cache@v3
-              env:
-                  cache-name: cache-node-modules
-              with:
-                  path: '~/.cache'
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
-            - name: Install dependencies 📦
-              run: yarn install --frozen-lockfile
-            - name: Prettier-Check 💅
-              run: yarn prettier:check
-            - name: Linting 🤟
-              run: yarn eslint:check
-            - name: Typescript Check ☑️
-              run: yarn tsc:check
-            - name: Unit tests 🎪
-              run: yarn test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: '~/.cache'
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install dependencies 📦
+        run: yarn install --frozen-lockfile
+      - name: Prettier-Check 💅
+        run: yarn prettier:check
+      - name: Linting 🤟
+        run: yarn eslint:check
+      - name: Typescript Check ☑️
+        run: yarn tsc:check
+      - name: Unit tests 🎪
+        run: yarn test

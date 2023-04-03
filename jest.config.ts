@@ -4,12 +4,12 @@
  */
 
 export default {
-    transform: {
-        '^.+\\.ts?$': 'esbuild-jest',
-    },
-    clearMocks: true,
-    collectCoverage: true,
-    coverageDirectory: 'coverage',
-    coverageProvider: 'v8',
-    testMatch: ['**/*.test.ts'],
+  transform: {
+    '^.+\\.ts?$': 'esbuild-jest',
+  },
+  clearMocks: true,
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageProvider: 'v8',
+  testMatch: ['**/*.test.ts'],
 };
