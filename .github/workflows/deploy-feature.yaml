@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Feature
 
 on:
   pull_request:
