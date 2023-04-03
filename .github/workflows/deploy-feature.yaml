@@ -28,10 +28,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-session-name: MySessionName
-          role-to-assume: arn:aws:iam::055198341417:oidc-provider/token.actions.githubusercontent.com
+          role-to-assume: arn:aws:iam::055198341417:role/Github-OIDC-Role-ANXAAI1WA8V2
           aws-region: ${{ env.TESTING_REGION }}
 
-      - name: Deploy to feature stack in the testing account
+      - name: Deploy to feature stack
         shell: bash
         run: |
           sam deploy --stack-name $(echo "${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]' | sed 's/^[^a-zA-Z]*/a/') \
