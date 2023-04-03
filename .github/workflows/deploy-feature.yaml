@@ -31,7 +31,7 @@ jobs:
           role-to-assume: ${{ env.OIDC_ROLE }}
           aws-region: ${{ env.TESTING_REGION }}
 
-      - name: Deploy to feature stack
+      - name: Deploy feature stack
         shell: bash
         run: |
           sam deploy --stack-name $(echo "${PROJECT_INITIALS}-${{github.head_ref}}" | tr -cd '[a-zA-Z0-9-]') \
