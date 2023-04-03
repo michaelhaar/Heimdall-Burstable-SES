@@ -1,0 +1,36 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  SAM_TEMPLATE: template.yaml
+  PROD_STACK_NAME: production-stack
+  PROD_REGION: eu-central-1
+
+jobs:
+  build-and-deploy-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - run: sam build --template ${SAM_TEMPLATE} --use-container
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY  }}
+          aws-region: ${{ env.PROD_REGION }}
+
+      - name: Deploy to production account
+        run: |
+          sam deploy --stack-name ${PROD_STACK_NAME} \
+            --capabilities CAPABILITY_IAM \
+            --region ${PROD_REGION} \
+            --no-fail-on-empty-changeset \
+            --no-confirm-changeset
