@@ -27,4 +27,5 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region ${TESTING_REGION} \
             --no-fail-on-empty-changeset \
-            --no-confirm-changeset
+            --no-confirm-changeset \
+            --resolve-s3
