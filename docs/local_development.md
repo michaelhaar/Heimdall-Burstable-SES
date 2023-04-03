@@ -1,4 +1,3 @@
-
 > Note: this is the copy from the SAM hello world example. I didn't really used it yet, but I think it's good to keep it here for now. (I might delete it later)
 
 ## Deploy the sample application
