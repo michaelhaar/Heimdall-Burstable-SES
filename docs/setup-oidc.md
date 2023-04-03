@@ -91,4 +91,6 @@ Go to IAM Roles and find the newly created role. Add the following permissions t
 
 ## 4. Update the Github Actions workflow
 
-Copy the AWS ARN from the previous step and update `OIDC_ROLE` in the to the `.github/workflows/deploy-feature.yaml` file
+Copy the AWS ARN from the previous step and update the Github repository variables:
+
+![Github repository variables](./images/github-variables.png)

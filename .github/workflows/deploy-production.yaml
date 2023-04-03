@@ -6,8 +6,7 @@ on:
       - 'main'
 
 env:
-  PROD_STACK_NAME: HBS-production-stack
-  PROD_REGION: eu-central-1
+  PROD_STACK_NAME: production-stack
 
 jobs:
   build-and-deploy-prod:
@@ -20,18 +19,18 @@ jobs:
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-      - run: sam build --template ${SAM_TEMPLATE} --use-container
+      - run: sam build --template "template.yaml" --use-container
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{env.OIDC_ROLE }}
-          aws-region: ${{ env.PROD_REGION }}
+          role-to-assume: ${{vars.OIDC_ROLE_ARN}}
+          aws-region: ${{vars.AWS_REGION}}
 
       - name: Deploy production stack
         run: |
-          sam deploy --stack-name ${PROD_STACK_NAME} \
+          sam deploy --stack-name $(echo "${{vars.PROJECT_INITIALS}}-${{PROD_STACK_NAME}}" | tr -cd '[a-zA-Z0-9-]') \
             --capabilities CAPABILITY_IAM \
-            --region ${PROD_REGION} \
+            --region ${{vars.AWS_REGION}} \
             --no-fail-on-empty-changeset \
             --no-confirm-changeset
