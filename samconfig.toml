@@ -15,11 +15,11 @@ lint = true
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
-resolve_s3 = false
+confirm_changeset = false
+resolve_s3 = true
 
 [default.package.parameters]
-resolve_s3 = false
+resolve_s3 = true
 
 [default.sync.parameters]
 watch = true
