@@ -14,6 +14,9 @@ jobs:
   build-and-deploy-feature:
     if: contains( github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
       - uses: aws-actions/setup-sam@v2
@@ -24,7 +27,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ env.ROLE }}
+          role-session-name: MySessionName
+          role-to-assume: arn:aws:iam::055198341417:oidc-provider/token.actions.githubusercontent.com
           aws-region: ${{ env.TESTING_REGION }}
 
       - name: Deploy to feature stack in the testing account
