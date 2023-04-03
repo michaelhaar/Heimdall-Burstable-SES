@@ -110,7 +110,6 @@ To get code to production:
 5. Test the feature deployment.
 6. The PR will be reviewed and merged to `main` and the pipeline will automatically create a new production deployment.
 
-
 ### Forking
 
 If you want to fork this project, you will need to add the following secrets to your forked repository:
@@ -121,10 +120,9 @@ If you want to fork this project, you will need to add the following secrets to 
 - `AWS_SECRET_ACCESS_KEY` of the AWS User
 
 - Note I recommend granting the AWS User full admin access for testing and reduce the permissions later on:
-    - `AmazonSQSFullAccess`
-    - `AWSLambdaFullAccess`
-    - `AmazonS3FullAccess`
-    - `AmazonSESFullAccess`
-    - `AWSCloudFormationFullAccess`
-    - `IAMFullAccess`
-
+  - `AmazonSQSFullAccess`
+  - `AWSLambdaFullAccess`
+  - `AmazonS3FullAccess`
+  - `AmazonSESFullAccess`
+  - `AWSCloudFormationFullAccess`
+  - `IAMFullAccess`
