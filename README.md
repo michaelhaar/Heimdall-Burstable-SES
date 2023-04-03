@@ -103,10 +103,10 @@ The application will be automatically deployed by the cd pipeline for each PR an
 
 To get code to production:
 
-1. Create a new branch from latest `main`.
+1. Create a new branch or fork from latest `main`.
 2. Make your changes.
 3. Push your branch to GitHub and open a pull request.
-4. The pipeline will automatically run the CI checks (typecheck, prettier, linting & unit tests) and will create a new feature deployment.
+4. The pipeline will automatically run the CI checks (typecheck, prettier, linting & unit tests) and will create a new feature deployment once the `deploy` label is added to the PR by the code owner.
 5. Test the feature deployment.
 6. The PR will be reviewed and merged to `main` and the pipeline will automatically create a new production deployment.
 
