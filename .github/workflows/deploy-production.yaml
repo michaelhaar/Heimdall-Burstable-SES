@@ -29,7 +29,7 @@ jobs:
 
       - name: Deploy production stack
         run: |
-          sam deploy --stack-name $(echo "${{vars.PROJECT_INITIALS}}-${{PROD_STACK_NAME}}" | tr -cd '[a-zA-Z0-9-]') \
+          sam deploy --stack-name $(echo "${{vars.PROJECT_INITIALS}}-${{env.PROD_STACK_NAME}}" | tr -cd '[a-zA-Z0-9-]') \
             --capabilities CAPABILITY_IAM \
             --region ${{vars.AWS_REGION}} \
             --no-fail-on-empty-changeset \
