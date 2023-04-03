@@ -16,6 +16,7 @@ env:
 
 jobs:
   build-and-deploy-feature:
+    if: ${{ github.event.label.name == 'deploy' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
