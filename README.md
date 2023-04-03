@@ -109,3 +109,22 @@ To get code to production:
 4. The pipeline will automatically run the CI checks (typecheck, prettier, linting & unit tests) and will create a new feature deployment.
 5. Test the feature deployment.
 6. The PR will be reviewed and merged to `main` and the pipeline will automatically create a new production deployment.
+
+
+### Forking
+
+If you want to fork this project, you will need to add the following secrets to your forked repository:
+
+![Github Actions secrets](/docs/images/github-secrets.png)
+
+- `AWS_ACCESS_KEY_ID` of the AWS User
+- `AWS_SECRET_ACCESS_KEY` of the AWS User
+
+- Note I recommend granting the AWS User full admin access for testing and reduce the permissions later on:
+    - `AmazonSQSFullAccess`
+    - `AWSLambdaFullAccess`
+    - `AmazonS3FullAccess`
+    - `AmazonSESFullAccess`
+    - `AWSCloudFormationFullAccess`
+    - `IAMFullAccess`
+
